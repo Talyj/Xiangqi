@@ -39,7 +39,7 @@ public class Board : MonoBehaviourPun, IPunObservable
     public float invalidAlpha;
     public float generalAlpha;
 
-    public GameObject currentBoard;
+    //public GameObject currentBoard;
 
     private float mouseOverX;
     private float mouseOverY;
@@ -75,17 +75,17 @@ public class Board : MonoBehaviourPun, IPunObservable
             invalidMoveText.GetComponent<TextMesh>().color = new Color(0f, 0f, 0f, 0f);
             redTurn = PhotonNetwork.Instantiate(redTurn.name, new Vector3(-60f, 7f, 30f), Quaternion.identity);
             blackTurn = PhotonNetwork.Instantiate(blackTurn.name, new Vector3(-60f, -7f, -30f), Quaternion.identity);
-            currentBoard = PhotonNetwork.Instantiate(currentBoard.name, new Vector3(-60f, 7f, 30f), Quaternion.identity);
+            //currentBoard = PhotonNetwork.Instantiate(currentBoard.name, new Vector3(-60f, 7f, 30f), Quaternion.identity);
         }
     }
 
     public void Update()
     {
         Playing();
-        if (FindObjectOfType<BoardState>().board.Length == 0) 
-        {
-            pieces = FindObjectOfType<BoardState>().board;
-        }
+        //if (FindObjectOfType<BoardState>().board.Length == 0) 
+        //{
+        //    pieces = FindObjectOfType<BoardState>().board;
+        //}
     }
 
     [PunRPC]
@@ -209,8 +209,6 @@ public class Board : MonoBehaviourPun, IPunObservable
                     msg += x.ToString() + "|";
                     msg += y.ToString();
 
-                    //client.Send(msg);
-
                     if (isRedTurn)
                     {
                         redTurn.transform.position = new Vector3(-139.9f, 81, 10f);
@@ -285,7 +283,7 @@ public class Board : MonoBehaviourPun, IPunObservable
                     MovePiece(selectedPiece, endX, endY);
                     moveCompleted = true;
                     isRedTurn = !isRedTurn;
-                    currentBoard.GetComponent<BoardState>().board = pieces;
+                    //currentBoard.GetComponent<BoardState>().board = pieces;
                     //photonView.RPC("SyncValues", RpcTarget.OthersBuffered, pieces);
                     return;
                 }
