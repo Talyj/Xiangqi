@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 605777710141781143}
   - component: {fileID: 605777710141781142}
   - component: {fileID: 605777710141781141}
-  - component: {fileID: 1558915438643287080}
-  - component: {fileID: 5615525825738718087}
+  - component: {fileID: -7818711032846141733}
+  - component: {fileID: 4577263332728826943}
   m_Layer: 0
   m_Name: RedSide
   m_TagString: Untagged
@@ -99,7 +99,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1558915438643287080
+--- !u!114 &-7818711032846141733
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -116,12 +116,13 @@ MonoBehaviour:
   prefixField: -1
   Synchronization: 3
   OwnershipTransfer: 0
-  observableSearch: 0
-  ObservedComponents: []
+  observableSearch: 2
+  ObservedComponents:
+  - {fileID: 4577263332728826943}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &5615525825738718087
+--- !u!114 &4577263332728826943
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -136,4 +137,4 @@ MonoBehaviour:
   m_SynchronizePosition: 1
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
-  m_UseLocal: 0
+  m_UseLocal: 1

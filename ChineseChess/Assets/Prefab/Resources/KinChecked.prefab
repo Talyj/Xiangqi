@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 9073280853367872643}
   - component: {fileID: 9073280853367872642}
   - component: {fileID: 9073280853367872641}
-  - component: {fileID: 8930781909221832763}
-  - component: {fileID: -4979975611292243004}
+  - component: {fileID: -8583773427110306703}
+  - component: {fileID: 8588984478975999171}
   m_Layer: 0
   m_Name: KinChecked
   m_TagString: Untagged
@@ -99,7 +99,7 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4278190080
---- !u!114 &8930781909221832763
+--- !u!114 &-8583773427110306703
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,12 +117,11 @@ MonoBehaviour:
   Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
-  ObservedComponents:
-  - {fileID: -4979975611292243004}
+  ObservedComponents: []
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &-4979975611292243004
+--- !u!114 &8588984478975999171
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

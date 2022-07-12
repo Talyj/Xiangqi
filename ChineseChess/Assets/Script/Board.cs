@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-public class Board : MonoBehaviourPun, IPunObservable
+public class Board : MonoBehaviourPun
 {
     public static Board Instance { get; set; }
 
@@ -20,6 +20,7 @@ public class Board : MonoBehaviourPun, IPunObservable
     public GameObject redKing;
     public GameObject redTiger;
     public GameObject redSoldier;
+    private List<GameObject> redPieces = new List<GameObject>();
 
     //Black
     public GameObject blackCar;
@@ -29,6 +30,7 @@ public class Board : MonoBehaviourPun, IPunObservable
     public GameObject blackKing;
     public GameObject blackTiger;
     public GameObject blackSoldier;
+    private List<GameObject> blackPieces = new List<GameObject>();
 
     public GameObject redTurn;
     public GameObject blackTurn;
@@ -38,8 +40,6 @@ public class Board : MonoBehaviourPun, IPunObservable
     public GameObject invalidMoveText;
     public float invalidAlpha;
     public float generalAlpha;
-
-    //public GameObject currentBoard;
 
     private float mouseOverX;
     private float mouseOverY;
@@ -52,7 +52,7 @@ public class Board : MonoBehaviourPun, IPunObservable
     private Vector3 originalPosition;
 
     private bool moveCompleted;
-    private bool isRedTurn = true;
+    public bool isRedTurn = true;
     private bool isRed;
 
     private Vector2 kingRedPos;
@@ -60,12 +60,15 @@ public class Board : MonoBehaviourPun, IPunObservable
     private List<Vector2> redPiecesPos = new List<Vector2>();
     private List<Vector2> blackPiecesPos = new List<Vector2>();
 
+    [HideInInspector] public bool isReady;
+
 
 
     public void Start()
     {
         Instance = this;
         isRed = PhotonNetwork.IsMasterClient;
+        isReady = false;
         if (PhotonNetwork.IsMasterClient)
         {
             GenerateBoard();
@@ -75,54 +78,21 @@ public class Board : MonoBehaviourPun, IPunObservable
             invalidMoveText.GetComponent<TextMesh>().color = new Color(0f, 0f, 0f, 0f);
             redTurn = PhotonNetwork.Instantiate(redTurn.name, new Vector3(-60f, 7f, 30f), Quaternion.identity);
             blackTurn = PhotonNetwork.Instantiate(blackTurn.name, new Vector3(-60f, -7f, -30f), Quaternion.identity);
-            //currentBoard = PhotonNetwork.Instantiate(currentBoard.name, new Vector3(-60f, 7f, 30f), Quaternion.identity);
         }
     }
 
     public void Update()
     {
         Playing();
-        //if (FindObjectOfType<BoardState>().board.Length == 0) 
-        //{
-        //    pieces = FindObjectOfType<BoardState>().board;
-        //}
     }
 
     [PunRPC]
-    public void SyncValues(Pieces[,] p)
+    public void SyncValues(int[] kingsPos)
     {
         isRedTurn = !isRedTurn;
-        pieces = p;
-    }
-
-    // Convert an object to a byte array
-    //private byte[] ObjectToByteArray(Pieces[,] obj)
-    //{
-    //    if (obj == null)
-    //        return null;
-
-    //    BinaryFormatter bf = new BinaryFormatter();
-    //    MemoryStream ms = new MemoryStream();
-    //    bf.Serialize(ms, obj);
-
-    //    return ms.ToArray();
-    //}
-
-    //// Convert a byte array to an Object
-    //private Pieces[,] ByteArrayToObject(byte[] arrBytes)
-    //{
-    //    MemoryStream memStream = new MemoryStream();
-    //    BinaryFormatter binForm = new BinaryFormatter();
-    //    memStream.Write(arrBytes, 0, arrBytes.Length);
-    //    memStream.Seek(0, SeekOrigin.Begin);
-    //    Pieces[,] obj = (Pieces[,])binForm.Deserialize(memStream);
-
-    //    return obj;
-    //}
-
-    public void SetPieces(Pieces[,] p)
-    {
-        pieces = p;
+        isReady = !isReady;
+        kingRedPos = new Vector2(kingsPos[0], kingsPos[1]);
+        kingBlackPos = new Vector2(kingsPos[2], kingsPos[3]);
     }
 
     public void SetIsRedTurn(bool r)
@@ -183,9 +153,14 @@ public class Board : MonoBehaviourPun, IPunObservable
 
         if (Input.GetMouseButtonDown(0))
         {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                SetOwner();
+            }
             if (isRed == isRedTurn)
             {
                 SelectPiece(x, y);
+                //ChangeOwner(selectedPiece);
                 if (selectedPiece != null && selectedPiece.GetRed() == isRedTurn)
                 {
                     dragging = true;
@@ -220,8 +195,22 @@ public class Board : MonoBehaviourPun, IPunObservable
                         blackTurn.transform.position = new Vector3(-139.9f, -81f, 10f);
                     }
                 }
+            }            
+        }
+    }
+    
+
+    private void SetOwner()
+    {
+        var pieces = FindObjectsOfType<Pieces>();
+        foreach (var p in pieces)
+        {
+            if (!p.GetRed())
+            {
+                p.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer.ActorNumber);
             }
         }
+        var test = 0;
     }
 
     private void UpdateMouseOver()
@@ -244,6 +233,7 @@ public class Board : MonoBehaviourPun, IPunObservable
             return;
         }
 
+        pieces = GetBoardState();
         Pieces p = pieces[x, y];
 
         if (p != null)
@@ -255,14 +245,27 @@ public class Board : MonoBehaviourPun, IPunObservable
 
     private void DragPiece(Pieces sP)
     {
-        if (sP.GetComponent<Pieces>().type == Pieces.typePiece.horse)
+        //if (sP.GetComponent<Pieces>().type == Pieces.typePiece.horse)
+        if (sP.GetComponent<Pieces>().type == "horse")
         {
-            sP.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mouseOverX, mouseOverY, 50));
+            sP.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mouseOverX, mouseOverY, 45.65f));
         }
         else
         {
-            sP.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mouseOverX, mouseOverY, 50));
+            sP.transform.position = Camera.main.ScreenToWorldPoint(new Vector3(mouseOverX, mouseOverY, 50f));
         }
+    }
+
+    private Pieces[,] GetBoardState()
+    {
+        var pieces = FindObjectsOfType<Pieces>();
+        Pieces[,] res = new Pieces[10, 9];
+        foreach(var p in pieces)
+        {
+            res[(int)p.GetBoardPosition().x, (int)p.GetBoardPosition().y] = p;
+        }
+
+        return res;
     }
 
     public void TryMove(int startX, int startY, int endX, int endY)
@@ -283,8 +286,12 @@ public class Board : MonoBehaviourPun, IPunObservable
                     MovePiece(selectedPiece, endX, endY);
                     moveCompleted = true;
                     isRedTurn = !isRedTurn;
-                    //currentBoard.GetComponent<BoardState>().board = pieces;
-                    //photonView.RPC("SyncValues", RpcTarget.OthersBuffered, pieces);
+                    List<int> kingsPos = new List<int>();
+                    kingsPos.Add((int)kingRedPos.x);
+                    kingsPos.Add((int)kingRedPos.y);
+                    kingsPos.Add((int)kingBlackPos.x);
+                    kingsPos.Add((int)kingBlackPos.y);
+                    photonView.RPC("SyncValues", RpcTarget.OthersBuffered, kingsPos.ToArray());
                     return;
                 }
                 else
@@ -449,7 +456,8 @@ public class Board : MonoBehaviourPun, IPunObservable
                 }
             }
         }
-        if (piece.type == Pieces.typePiece.king)
+        //if (piece.type == Pieces.typePiece.king)
+        if (piece.type == "king")
         {
             if (piece.GetRed())
             {
@@ -532,8 +540,8 @@ public class Board : MonoBehaviourPun, IPunObservable
         blackPiecesPos.Add(new Vector2(0, 4));
         kingBlackPos = new Vector2(0, 4);
 
-        GenerateCannon(2, 1, -36f, 7f, -28f, false);
-        GenerateCannon(2, 7, 36f, 7f, -28f, false);
+        GenerateTiger(2, 1, -36f, 7f, -28f, false);
+        GenerateTiger(2, 7, 36f, 7f, -28f, false);
 
         blackPiecesPos.Add(new Vector2(2, 1));
         blackPiecesPos.Add(new Vector2(2, 7));
@@ -580,8 +588,8 @@ public class Board : MonoBehaviourPun, IPunObservable
         redPiecesPos.Add(new Vector2(9, 4));
         kingBlackPos = new Vector2(9, 4);
 
-        GenerateCannon(7, 1, -36f, 7f, 28f, true);
-        GenerateCannon(7, 7, 36f, 7f, 28f, true);
+        GenerateTiger(7, 1, -36f, 7f, 28f, true);
+        GenerateTiger(7, 7, 36f, 7f, 28f, true);
 
         redPiecesPos.Add(new Vector2(7, 1));
         redPiecesPos.Add(new Vector2(7, 7));
@@ -597,6 +605,8 @@ public class Board : MonoBehaviourPun, IPunObservable
         redPiecesPos.Add(new Vector2(6, 4));
         redPiecesPos.Add(new Vector2(6, 6));
         redPiecesPos.Add(new Vector2(6, 8));
+
+        isReady = true;
     }
 
     private bool GeneralChecked(bool isRed)
@@ -606,6 +616,7 @@ public class Board : MonoBehaviourPun, IPunObservable
             for (int i = 0; i < blackPiecesPos.Count; i++)
             {
                 Vector2 pos = blackPiecesPos[i];
+
                 if (isValidMove((int)pos.x, (int)pos.y, (int)kingRedPos.x, (int)kingRedPos.y, pieces[(int)pos.x, (int)pos.y].type))
                 {
                     return true;
@@ -626,7 +637,8 @@ public class Board : MonoBehaviourPun, IPunObservable
         return false;
     }
 
-    private bool isValidMove(int startX, int startY, int endX, int endY, Pieces.typePiece type)
+    //private bool isValidMove(int startX, int startY, int endX, int endY, Pieces.typePiece type)
+    private bool isValidMove(int startX, int startY, int endX, int endY, string type)
     {
         if (pieces[endX, endY] != null)
         {
@@ -637,7 +649,8 @@ public class Board : MonoBehaviourPun, IPunObservable
         }
         ArrayList possibleMoves = new ArrayList();
         bool isRed = pieces[startX, startY].GetRed();
-        if (type == Pieces.typePiece.car)
+        //if (type == Pieces.typePiece.car)
+        if (type == "car")
         {
             if (startX != endX && startY != endY) return false;
             if (startX == endX && startY == endY) return false;
@@ -680,7 +693,8 @@ public class Board : MonoBehaviourPun, IPunObservable
                 return true;
             }
         }
-        else if (type == Pieces.typePiece.horse)
+        //else if (type == Pieces.typePiece.horse)
+        else if (type == "horse")
         {
             if (isInBounds(startX + 1, startY))
             {
@@ -715,7 +729,8 @@ public class Board : MonoBehaviourPun, IPunObservable
                 }
             }
         }
-        else if (type == Pieces.typePiece.elephant)
+        //else if (type == Pieces.typePiece.elephant)
+        else if (type == "elephant")
         {
             if (isInBounds(startX + 1, startY + 1))
             {
@@ -786,7 +801,8 @@ public class Board : MonoBehaviourPun, IPunObservable
                 }
             }
         }
-        else if (type == Pieces.typePiece.advisor)
+        //else if (type == Pieces.typePiece.advisor)
+        else if (type == "advisor")
         {
             ArrayList advisorBox = new ArrayList();
             if (isRed)
@@ -821,7 +837,8 @@ public class Board : MonoBehaviourPun, IPunObservable
             }
             return false;
         }
-        else if (type == Pieces.typePiece.king)
+        //else if (type == Pieces.typePiece.king)
+        else if (type == "king")
         {
             ArrayList generalBox = new ArrayList();
             if (isRed)
@@ -860,7 +877,8 @@ public class Board : MonoBehaviourPun, IPunObservable
             }
             return false;
         }
-        else if (type == Pieces.typePiece.tiger)
+        //else if (type == Pieces.typePiece.tiger)
+        else if (type == "tiger")
         {
             if (startX != endX && startY != endY) { return false; } //cannot move diagonally
             if (startX == endX && startY == endY) { return false; } //cannot move to the same current place.
@@ -912,7 +930,8 @@ public class Board : MonoBehaviourPun, IPunObservable
                 return true;
             }
         }
-        else if (type == Pieces.typePiece.soldier)
+        //else if (type == Pieces.typePiece.soldier)
+        else if (type == "soldier")
         {
             bool crossedRiver = false;
             if (isRed)
@@ -962,13 +981,16 @@ public class Board : MonoBehaviourPun, IPunObservable
         if (red)
         {
             go = PhotonNetwork.Instantiate(redCar.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackCar.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
 
-        go.GetComponent<Pieces>().type = Pieces.typePiece.car;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.car;
+        go.GetComponent<Pieces>().type = "car";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
@@ -981,12 +1003,15 @@ public class Board : MonoBehaviourPun, IPunObservable
         if (red)
         {
             go = PhotonNetwork.Instantiate(redHorse.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackHorse.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
-        go.GetComponent<Pieces>().type = Pieces.typePiece.horse;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.horse;
+        go.GetComponent<Pieces>().type = "horse";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
@@ -999,12 +1024,15 @@ public class Board : MonoBehaviourPun, IPunObservable
         if (red)
         {
             go = PhotonNetwork.Instantiate(redElephant.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackElephant.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
-        go.GetComponent<Pieces>().type = Pieces.typePiece.elephant;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.elephant;
+        go.GetComponent<Pieces>().type = "elephant";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
@@ -1017,12 +1045,15 @@ public class Board : MonoBehaviourPun, IPunObservable
         if (red)
         {
             go = PhotonNetwork.Instantiate(redAdvisor.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackAdvisor.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
-        go.GetComponent<Pieces>().type = Pieces.typePiece.advisor;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.advisor;
+        go.GetComponent<Pieces>().type = "advisor";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
@@ -1035,30 +1066,36 @@ public class Board : MonoBehaviourPun, IPunObservable
         if (red)
         {
             go = PhotonNetwork.Instantiate(redKing.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackKing.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
-        go.GetComponent<Pieces>().type = Pieces.typePiece.king;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.king;
+        go.GetComponent<Pieces>().type = "king";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
         Pieces p = go.GetComponent<Pieces>();
         pieces[x, y] = p;
     }
-    private void GenerateCannon(int x, int y, float px, float py, float pz, bool red)
+    private void GenerateTiger(int x, int y, float px, float py, float pz, bool red)
     {
         GameObject go;
         if (red)
         {
             go = PhotonNetwork.Instantiate(redTiger.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackTiger.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
-        go.GetComponent<Pieces>().type = Pieces.typePiece.tiger;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.tiger;
+        go.GetComponent<Pieces>().type = "tiger";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
@@ -1071,30 +1108,19 @@ public class Board : MonoBehaviourPun, IPunObservable
         if (red)
         {
             go = PhotonNetwork.Instantiate(redSoldier.name, new Vector3(px, py, pz), Quaternion.identity);
+            redPieces.Add(go);
         }
         else
         {
             go = PhotonNetwork.Instantiate(blackSoldier.name, new Vector3(px, py, pz), Quaternion.identity);
+            blackPieces.Add(go);
         }
-        go.GetComponent<Pieces>().type = Pieces.typePiece.soldier;
+        //go.GetComponent<Pieces>().type = Pieces.typePiece.soldier;
+        go.GetComponent<Pieces>().type = "soldier";
         go.GetComponent<Pieces>().setIsRed(red);
         go.GetComponent<Pieces>().SetBoardPosition(x, y);
         go.transform.position = new Vector3(px, py, pz);
         Pieces p = go.GetComponent<Pieces>();
         pieces[x, y] = p;
-    }
-
-    void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(isRedTurn);
-            //stream.SendNext(ObjectToByteArray(pieces));
-        }
-        else
-        {
-            SetIsRedTurn((bool)stream.ReceiveNext());
-            //SetPieces((Pieces[,])stream.ReceiveNext());
-        }
     }
 }

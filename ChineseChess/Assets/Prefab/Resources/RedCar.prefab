@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 470866858207573441}
   - component: {fileID: 470866858207573440}
   - component: {fileID: 470866858207573447}
-  - component: {fileID: -6248586014698553692}
-  - component: {fileID: -7876278714611978805}
   - component: {fileID: -857010971818682573}
+  - component: {fileID: -2581551057413055867}
+  - component: {fileID: -4727843315268564669}
   m_Layer: 0
   m_Name: RedCar
   m_TagString: Untagged
@@ -86,7 +86,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-6248586014698553692
+--- !u!114 &-857010971818682573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470866858207573445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690a82a304ef2cb4cb36c580e1064f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 
+  atRiver: 0
+  isRed: 0
+  boardPos: {x: 0, y: 0}
+--- !u!114 &-2581551057413055867
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,14 +118,15 @@ MonoBehaviour:
   Group: 0
   prefixField: -1
   Synchronization: 3
-  OwnershipTransfer: 0
+  OwnershipTransfer: 1
   observableSearch: 2
   ObservedComponents:
-  - {fileID: -7876278714611978805}
+  - {fileID: -857010971818682573}
+  - {fileID: -4727843315268564669}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &-7876278714611978805
+--- !u!114 &-4727843315268564669
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,15 +142,3 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
---- !u!114 &-857010971818682573
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 470866858207573445}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 690a82a304ef2cb4cb36c580e1064f31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

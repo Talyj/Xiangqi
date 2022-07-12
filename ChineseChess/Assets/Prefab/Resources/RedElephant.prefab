@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 6093794030088467581}
   - component: {fileID: 6093794030088467582}
   - component: {fileID: 6093794030088467583}
-  - component: {fileID: -2558899564434331645}
-  - component: {fileID: 8545564531215952773}
   - component: {fileID: -159586421815113846}
+  - component: {fileID: -4154631327146337372}
+  - component: {fileID: -6639197214471915101}
   m_Layer: 0
   m_Name: RedElephant
   m_TagString: Untagged
@@ -86,7 +86,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-2558899564434331645
+--- !u!114 &-159586421815113846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6093794030088467569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690a82a304ef2cb4cb36c580e1064f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 
+  atRiver: 0
+  isRed: 0
+  boardPos: {x: 0, y: 0}
+--- !u!114 &-4154631327146337372
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,14 +118,15 @@ MonoBehaviour:
   Group: 0
   prefixField: -1
   Synchronization: 3
-  OwnershipTransfer: 0
+  OwnershipTransfer: 1
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 8545564531215952773}
+  - {fileID: -159586421815113846}
+  - {fileID: -6639197214471915101}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &8545564531215952773
+--- !u!114 &-6639197214471915101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,15 +142,3 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
---- !u!114 &-159586421815113846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6093794030088467569}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 690a82a304ef2cb4cb36c580e1064f31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

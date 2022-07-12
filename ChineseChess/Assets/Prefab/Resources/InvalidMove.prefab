@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 4678986527530209497}
   - component: {fileID: 4678986527530209496}
   - component: {fileID: 4678986527530209499}
-  - component: {fileID: 600072043252750235}
-  - component: {fileID: 3558517439267045087}
+  - component: {fileID: -404575779832903563}
+  - component: {fileID: -1403140090873098366}
   m_Layer: 0
   m_Name: InvalidMove
   m_TagString: Untagged
@@ -98,8 +98,8 @@ TextMesh:
   m_Font: {fileID: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4278190080
---- !u!114 &600072043252750235
+    rgba: 0
+--- !u!114 &-404575779832903563
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,7 +121,7 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &3558517439267045087
+--- !u!114 &-1403140090873098366
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

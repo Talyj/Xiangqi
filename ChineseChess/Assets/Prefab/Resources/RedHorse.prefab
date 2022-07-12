@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 235599536412017087}
   - component: {fileID: 235599536412017086}
   - component: {fileID: 235599536412017085}
-  - component: {fileID: -4072785399747562877}
-  - component: {fileID: 8505489336643744203}
   - component: {fileID: -1885319894510825695}
+  - component: {fileID: 1046318299042162561}
+  - component: {fileID: -8909447107581266075}
   m_Layer: 0
   m_Name: RedHorse
   m_TagString: Untagged
@@ -86,7 +86,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-4072785399747562877
+--- !u!114 &-1885319894510825695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 235599536412017059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 690a82a304ef2cb4cb36c580e1064f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 
+  atRiver: 0
+  isRed: 0
+  boardPos: {x: 0, y: 0}
+--- !u!114 &1046318299042162561
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,14 +118,15 @@ MonoBehaviour:
   Group: 0
   prefixField: -1
   Synchronization: 3
-  OwnershipTransfer: 0
+  OwnershipTransfer: 1
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 8505489336643744203}
+  - {fileID: -1885319894510825695}
+  - {fileID: -8909447107581266075}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
---- !u!114 &8505489336643744203
+--- !u!114 &-8909447107581266075
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -125,15 +142,3 @@ MonoBehaviour:
   m_SynchronizeRotation: 1
   m_SynchronizeScale: 0
   m_UseLocal: 1
---- !u!114 &-1885319894510825695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 235599536412017059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 690a82a304ef2cb4cb36c580e1064f31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
