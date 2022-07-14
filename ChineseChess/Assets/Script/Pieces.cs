@@ -36,8 +36,6 @@ public class Pieces : MonoBehaviourPun, IPunObservable
         boardPos = new Vector2(x, y);
     }
 
-    public Pieces() { }
-
     public void setIsRed(bool r)
     {
         isRed = r;
@@ -67,6 +65,7 @@ public class Pieces : MonoBehaviourPun, IPunObservable
         type = value;
     }
 
+    //Every time someone act on the online it is call
     void IPunObservable.OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)

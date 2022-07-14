@@ -57,8 +57,8 @@ public class Board : MonoBehaviourPun
 
     private Vector2 kingRedPos;
     private Vector2 kingBlackPos;
-    private List<Vector2> redPiecesPos = new List<Vector2>();
-    private List<Vector2> blackPiecesPos = new List<Vector2>();
+    public List<Vector2> redPiecesPos = new List<Vector2>();
+    public List<Vector2> blackPiecesPos = new List<Vector2>();
 
     [HideInInspector] public bool isReady;
 
@@ -87,12 +87,34 @@ public class Board : MonoBehaviourPun
     }
 
     [PunRPC]
-    public void SyncValues(int[] kingsPos)
+    public void SyncValues(int[] PiecesPos)
     {
         isRedTurn = !isRedTurn;
         isReady = !isReady;
-        kingRedPos = new Vector2(kingsPos[0], kingsPos[1]);
-        kingBlackPos = new Vector2(kingsPos[2], kingsPos[3]);
+        kingRedPos = new Vector2(PiecesPos[0], PiecesPos[1]);
+        kingBlackPos = new Vector2(PiecesPos[2], PiecesPos[3]);
+        SetPiecesValues(PiecesPos);
+    }
+
+    private void SetPiecesValues(int[] piecesPos)
+    {
+        var blackPieces = new List<Vector2>();
+        var redPieces = new List<Vector2>();
+
+        for (int i = 4; i < piecesPos.Length; i+=2)
+        {
+            if(i >= 36)
+            {
+                redPieces.Add(new Vector2(piecesPos[i], piecesPos[i + 1]));
+            }
+            else
+            {
+                blackPieces.Add(new Vector2(piecesPos[i], piecesPos[i + 1]));
+            }
+        }
+
+        blackPiecesPos = blackPieces;
+        redPiecesPos = redPieces;
     }
 
     public void SetIsRedTurn(bool r)
@@ -203,6 +225,7 @@ public class Board : MonoBehaviourPun
     private void SetOwner()
     {
         var pieces = FindObjectsOfType<Pieces>();
+
         foreach (var p in pieces)
         {
             if (!p.GetRed())
@@ -210,7 +233,6 @@ public class Board : MonoBehaviourPun
                 p.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer.ActorNumber);
             }
         }
-        var test = 0;
     }
 
     private void UpdateMouseOver()
@@ -262,7 +284,32 @@ public class Board : MonoBehaviourPun
         Pieces[,] res = new Pieces[10, 9];
         foreach(var p in pieces)
         {
-            res[(int)p.GetBoardPosition().x, (int)p.GetBoardPosition().y] = p;
+            try
+            {
+                res[(int)p.GetBoardPosition().x, (int)p.GetBoardPosition().y] = p;
+
+            }
+            catch(IndexOutOfRangeException Oob)
+            {
+                // :)
+            }
+        }
+
+        return res;
+    }
+
+    private List<int> AddBlackRedPiecesPos(List<int> res)
+    {
+        foreach(var bpp in blackPiecesPos)
+        {
+            res.Add((int)bpp.x);
+            res.Add((int)bpp.y);
+        }
+
+        foreach (var rpp in redPiecesPos)
+        {
+            res.Add((int)rpp.x);
+            res.Add((int)rpp.y);
         }
 
         return res;
@@ -286,12 +333,13 @@ public class Board : MonoBehaviourPun
                     MovePiece(selectedPiece, endX, endY);
                     moveCompleted = true;
                     isRedTurn = !isRedTurn;
-                    List<int> kingsPos = new List<int>();
-                    kingsPos.Add((int)kingRedPos.x);
-                    kingsPos.Add((int)kingRedPos.y);
-                    kingsPos.Add((int)kingBlackPos.x);
-                    kingsPos.Add((int)kingBlackPos.y);
-                    photonView.RPC("SyncValues", RpcTarget.OthersBuffered, kingsPos.ToArray());
+                    List<int> piecesPos = new List<int>();
+                    piecesPos.Add((int)kingRedPos.x);
+                    piecesPos.Add((int)kingRedPos.y);
+                    piecesPos.Add((int)kingBlackPos.x);
+                    piecesPos.Add((int)kingBlackPos.y);
+                    piecesPos = AddBlackRedPiecesPos(piecesPos);
+                    photonView.RPC("SyncValues", RpcTarget.OthersBuffered, piecesPos.ToArray());
                     return;
                 }
                 else
@@ -428,7 +476,21 @@ public class Board : MonoBehaviourPun
         int startY = (int)piece.GetBoardPosition().y;
         int xDifference = x - startX;
         int yDifference = y - startY;
-        piece.transform.position = piece.transform.position + new Vector3(yDifference * 20f, 0.5f, xDifference * 10.0f);
+        if (piece.GetRed() && x < 5 || !piece.GetRed() && x > 4)
+        {
+            if (piece.GetRed())
+            {
+                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) - 7f);
+            }
+            else
+            {
+                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) + 7f);
+            }
+        }
+        else
+        {
+            piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, xDifference * 10f);
+        }
         if (pieces[x, y] != null)
         {
             RemovePiece(pieces[x, y].GetRed(), x, y);
@@ -482,6 +544,7 @@ public class Board : MonoBehaviourPun
                 if (redPiecesPos[i].x == x && redPiecesPos[i].y == y)
                 {
                     removePos = i;
+                    ChangePieceOwnerFromPos(new Vector2(x, y));
                 }
             }
             redPiecesPos.RemoveAt(removePos);
@@ -493,10 +556,42 @@ public class Board : MonoBehaviourPun
                 if (blackPiecesPos[i].x == x && blackPiecesPos[i].y == y)
                 {
                     removePos = i;
+                    ChangePieceOwnerFromPos(new Vector2(x, y));
                 }
             }
             blackPiecesPos.RemoveAt(removePos);
         }
+    }
+
+    private void ChangePieceOwnerFromPos(Vector2 pos)
+    {
+        Pieces res = null;
+        foreach(var p in pieces)
+        {
+            if(p != null)
+            {
+                if(p.GetBoardPosition().x == pos.x && p.GetBoardPosition().y == pos.y)
+                {
+                    res = p;
+                }
+            }
+        }
+
+        if (isRedTurn)
+        {
+            if (PhotonNetwork.IsMasterClient)
+            {
+                res.photonView.TransferOwnership(PhotonNetwork.LocalPlayer.ActorNumber);
+            }
+        }
+        else
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                res.photonView.TransferOwnership(PhotonNetwork.LocalPlayer.ActorNumber);
+            }
+        }
+
     }
 
     private Vector2 GetBoardPosition(float x, float z)
@@ -1123,4 +1218,5 @@ public class Board : MonoBehaviourPun
         Pieces p = go.GetComponent<Pieces>();
         pieces[x, y] = p;
     }
+
 }
