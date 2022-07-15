@@ -2,8 +2,6 @@ using Photon.Pun;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public class Board : MonoBehaviourPun
@@ -328,7 +326,7 @@ public class Board : MonoBehaviourPun
         {
             if (isValidMove(startX, startY, endX, endY, selectedPiece.type))
             {
-                if (!GeneralChecked(isRedTurn))
+                if (!GeneralChecked(isRedTurn) && !GeneralChecked(!isRedTurn))
                 {
                     MovePiece(selectedPiece, endX, endY);
                     moveCompleted = true;
@@ -476,15 +474,27 @@ public class Board : MonoBehaviourPun
         int startY = (int)piece.GetBoardPosition().y;
         int xDifference = x - startX;
         int yDifference = y - startY;
-        if (piece.GetRed() && x < 5 || !piece.GetRed() && x > 4)
+        var riverDist = 7f;
+        if(piece.GetRed() && startX > 4 && piece.GetRed() && x < 5 || !piece.GetRed() && startX < 5 && !piece.GetRed() && x > 4)
         {
             if (piece.GetRed())
             {
-                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) - 7f);
+                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) - riverDist);
             }
             else
             {
-                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) + 7f);
+                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) + riverDist);
+            }
+        }
+        else if (!piece.GetRed() && startX > 4 && !piece.GetRed() && x < 5 || piece.GetRed() && startX < 5 && piece.GetRed() && x > 4)
+        {
+            if (!piece.GetRed())
+            {
+                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) - riverDist);
+            }
+            else
+            {
+                piece.transform.position = piece.transform.position + new Vector3(yDifference * 12f, 0.5f, (xDifference * 10f) + riverDist);
             }
         }
         else

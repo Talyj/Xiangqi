@@ -13,7 +13,7 @@ using Photon.Realtime;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     [Tooltip("The list of prefab that represent the differente characters")]
-    public GameObject[] playerPrefabs;
+    public GameObject playerPrefabs;
         
     private int numberPlayer = 1;
 
@@ -24,21 +24,34 @@ public class GameManager : MonoBehaviourPunCallbacks
             //LoadArena(); 
             return;
         }
-        if (playerPrefabs[0] == null)
+        if (playerPrefabs == null)
         {
             Debug.LogError("<Color=Red><a>Missing</a></Color> playerPrefab Reference. Please set it up in GameObject 'Game Manager'", this);
         }
         else
         {
-            //if(PlayerMovement.localPlayerInstance == null)
-            //{
-            //    Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
-            //    // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
-            //}
-            //else
-            //{
+            if (Players.localPlayerInstance == null)
+            {
+                Debug.LogFormat("We are Instantiating LocalPlayer from {0}", SceneManager.GetActiveScene().name);
+                // we're in a room. spawn a character for the local player. it gets synced by using PhotonNetwork.Instantiate
+                PhotonNetwork.Instantiate(playerPrefabs.name, new Vector3(0f, 110f, 0f), Quaternion.identity, 0);
+            }
+            else
+            {
                 Debug.LogFormat("Ignoring scene load for {0}", SceneManagerHelper.ActiveSceneName);
-            //}
+            }
+        }
+    }
+
+    private void SpawnDifferentAxis(bool isMasterClient)
+    {
+        if (isMasterClient)
+        {
+            PhotonNetwork.Instantiate(playerPrefabs.name, new Vector3(0f, 110f, 0f), Quaternion.LookRotation(new Vector3(0f, 0f, 0f), new Vector3(0f, 110f, -300f)), 0);
+        }
+        else
+        {
+            PhotonNetwork.Instantiate(playerPrefabs.name, new Vector3(0f, 110f, 0f), Quaternion.LookRotation(new Vector3(0f, 0f, 0f), new Vector3(0f, 10f, 300f)), 0);
         }
     }
 
